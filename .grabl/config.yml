@@ -1,0 +1,19 @@
+# grabl config
+# @graknlabs_graql
+
+dependency-update:
+  dependencies:
+    - graql:
+        org: graknlabs
+        repo: graql
+        type: [snapshot, release]
+  run:
+    bazel run @graknlabs_build_tools//sync-dependencies-bazel $GRABL_NEW_DEPENDENCIES
+
+release-validation:
+  jobs:
+    release-validate-deps:
+      run: |
+        bazel run @graknlabs_build_tools//ci:release-validate-deps -- graknlabs_common
+  workflow:
+    - release-validate-deps
