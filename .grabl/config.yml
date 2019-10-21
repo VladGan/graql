@@ -1,19 +1,48 @@
 # grabl config
 # @graknlabs_graql
 
-dependency-update:
-  dependencies:
-    - graql:
-        org: graknlabs
-        repo: graql
-        type: [snapshot, release]
-  run:
-    bazel run @graknlabs_build_tools//sync-dependencies-bazel $GRABL_NEW_DEPENDENCIES
-
-release-validation:
-  jobs:
-    release-validate-deps:
+dependency:
+  config:
+    dependencies:
+      - common:
+          org: graknlabs
+          repo: common
+          type: [snapshot, release]
+  validate:
+    jobs:
+      dependency-validate-build:
+        machine: ubuntu-19.10
+        type: foreground
+        run: |
+          bazel run @graknlabs_build_tools//sync-dependencies-bazel $GRABL_NEW_DEPENDENCIES         # graql@abc123 protocol@bcd234
+          bazel build //...
+      dependency-validate-correctness:
+        machine: ubuntu-19.10
+          type: foreground
+          run: |
+            bazel run @graknlabs_build_tools//sync-dependencies-bazel $GRABL_NEW_DEPENDENCIES         # graql@abc123 protocol@bcd234
+            bazel build //test/basic-correctness
+    execution:
+      - depedency-validate-build
+      - dependency-validate-correctness
+  update:
+    job:
+      machine: ubuntu-19.10
+      type: foreground
       run: |
-        bazel run @graknlabs_build_tools//ci:release-validate-deps -- graknlabs_common
-  workflow:
-    - release-validate-deps
+        bazel run @graknlabs_build_tools//sync-dependencies-bazel $GRABL_NEW_DEPENDENCIES
+
+release:
+  config:
+    version: ./VERSION
+  validation:
+    job:
+      machine: ubuntu-19.10
+      type: foreground
+      run: |
+        bazel run @graknlabs_build_tools//ci:release-validate-deps -- graknlabs_common graknlabs_graql
+  bump:
+    job:
+      machine: ubuntu 19.10
+      type: foreground
+      run: bazel run @graknlabs_build_tools//ci:version-bump
