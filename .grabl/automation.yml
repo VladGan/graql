@@ -41,16 +41,17 @@ build:
         script: |
           sudo apt-get update
           sudo apt-get -y install maven
+          sudo update-java-alternatives -s java-1.8.0-openjdk-amd64
           sed -i -e "s/GRAQL_LANG_VERSION_MARKER/$GRABL_COMMIT/g" java/test/deployment/pom.xml
           cd java/test/deployment/ && mvn test
     execution:
-      - build
-      - build-dependency
-      - test-graql-java
-      - deploy-maven-snapshot:
-          depends: [build, build-dependency, test-graql-java]
-      - test-deployment-maven:
-          depends: [deploy-maven-snapshot]
+#      - build
+#      - build-dependency
+#      - test-graql-java
+#      - deploy-maven-snapshot:
+#          depends: [build, build-dependency, test-graql-java]
+      - test-deployment-maven
+#          depends: [deploy-maven-snapshot]
 
 release:
   validation:
