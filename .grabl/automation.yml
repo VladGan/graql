@@ -48,9 +48,9 @@ build:
 #      - build
 #      - build-dependency
 #      - test-graql-java
-#      - deploy-maven-snapshot:
+      - deploy-maven-snapshot
 #          depends: [build, build-dependency, test-graql-java]
-      - test-deployment-maven
+      - test-deployment-maven:
           depends: [deploy-maven-snapshot]
 
 release:
